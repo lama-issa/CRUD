@@ -4,6 +4,7 @@ var password=document.getElementById("password");
 var addbtn=document.getElementById("click");
 var data=document.getElementById("data");
 var deleteall=document.getElementById("deleteall");
+var nameAlert=document.getElementById("nameAlert");
 var arr;
 var currentindex;//بقدر اوصله من اي مكان هون بستخدمه في update عشان احصل علم الاندكس الي بدي اعدل عليه
 if(localStorage.getItem("list")==null){//اذا ما كان مدخل اشي 
@@ -36,13 +37,22 @@ function add(){
     eml:Email.value,
     pass:password.value 
    };
+   
    arr.push(obj);  
    localStorage.setItem("list",JSON.stringify(arr));
+   
    //localStorage اذا بدي احتفظ بالبيانات حتى بعد ما اغلق الصفحة
    //setItem :بتخزن البيانات في ال localstorge
    //list اي اسم انا بسميه
    //JSON.stringify بتحول الى سترنج
    //getItem:بتحضر البيانات من localstorge
+   Swal.fire({
+    position: 'top-end',
+    icon: 'success',
+    title: 'added successfully',
+    showConfirmButton: false,
+    timer: 2500
+  })
 }
 
 
@@ -73,9 +83,27 @@ password.value="";
 
 //delete
 function del(index){
-arr.splice(index,1);//بروح على الاندكس وبحذف عنصر واحد من الاريه
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      arr.splice(index,1);//بروح على الاندكس وبحذف عنصر واحد من الاريه
 localStorage.setItem("list",JSON.stringify(arr));//لازم كمان لما احذف من الاريف احذف من اللوكل ستورج
 displaydata();//لازم نحطها عشان تعرض البيانات بعد الحذف لانه اذا ما حطيناها رح تنحذف البيانات لكن رح تضل ظاهرة بالجدول لانه عرضنا البيانات قبل الحذف فقط فلازم نعرض البيانات بعد الحذف كمان مرة 
+
+      Swal.fire(
+        'Deleted!',
+        'Your file has been deleted.',
+        'success'
+      )
+    }
+  })
 }
 
 //delete all
@@ -88,7 +116,7 @@ deleteall.onclick=function (){
 function search(e){
   var result="";
   for(var i=0;i<arr.length;i++){
-    if(arr[i].eml.toLowerCase().includes(e.tolowercase)){
+    if(arr[i].eml.toLowerCase().includes(e.toLowerCase())){
     result +=`<tr>
     <td>${i}</td>
     <td>${arr[i].eml}</td>
@@ -122,6 +150,7 @@ currentindex=index;
 }
 
 function update(){
+  //اخذ الي بدي اعدل عليه من currentindex وعدل عليه
   var obj= {
     eml:Email.value,
     pass:password.value 
@@ -131,3 +160,25 @@ function update(){
    localStorage.setItem("list",JSON.stringify(arr));
 }
 //end update
+
+//name validation
+Email.onkeyup = function(){
+  var namePattern = /^[A-Z][a-z]{2,8}$/;
+  if(namePattern.test(Email.value)){
+    addbtn.removeAttribute("disabled");
+    Email.classList.add('is-valid');
+    Email.classList.remove('is-invalid'); 
+    nameAlert.classList.add('d-none');  
+    
+  } 
+  else {
+    addbtn.setAttribute("disabled","disabled");
+    Email.classList.replace('is-valid','is-invalid');
+    nameAlert.classList.add("d-block");
+      nameAlert.classList.remove("d-none");
+ 
+  }
+}
+//end name valid//
+
+
